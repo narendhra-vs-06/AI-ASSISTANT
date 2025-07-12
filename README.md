@@ -1,155 +1,144 @@
-# AI-ASSISTANT
-Ai assistant 
+Here’s the updated `README.md` file tailored to your **JARVIS Assistant** project with:
 
-
-Here's a detailed `README.md` for your GitHub repository based on the provided code and features:
-
----
-
-# 🧠 JARVIS AI Assistant (English + Tamil)
-
-**A smart desktop assistant powered by Ollama's `phi3:mini` and `llama3.2-tamil`, featuring voice interaction, GUI, image input (LLaVA), email, daily tasks, and home control.**
+* ✅ English-only interaction
+* ✅ Integrated GUI with command buttons
+* ✅ App control and email
+* ✅ Image analysis via LLaVA
+* ❌ No Tamil speech
 
 ---
 
-## 🌟 Features
+````markdown
+# 🧠 JARVIS Desktop AI Assistant (English Only)
 
-* 🔁 Continuous speech loop with **interrupt support**
-* 🗣️ Speak and respond in **English (default)** or **Tamil** with voice model switching
-* 🖼️ **Image input** via LLaVA for image captioning
-* 🎛️ Clean **GUI** with command buttons
-* 🗓️ Date, time, jokes, music, weather stub
-* 🔌 Control for apps (Notepad, Calculator, Chrome)
-* ✉️ Email support (SMTP)
-* 🧠 LLM-powered conversation with local models via Ollama
-* 💾 SQLite-based **conversation logging**
-* 🖱️ File selector for image description
-* 🧪 Extensible with Home Automation or Calendar integrations
+A smart desktop assistant using `phi3:mini` for natural language responses and an intuitive GUI with voice control, app management, email, and image-based interaction using LLaVA.
 
 ---
 
-## 🛠 Requirements
+## 🚀 Features
 
-* Python 3.10+
-* Dependencies:
+- 🔁 Continuous speech interaction (looped listening + speaking)
+- 🗣️ Voice input with interruption support
+- 🖥️ GUI with action buttons
+- 🧠 Responses from **phi3:mini** (Ollama LLM)
+- 🖼️ Image analysis using **LLaVA** (optional)
+- 📁 Log conversations to SQLite + export as `.txt`
+- 🎶 Music playback (YouTube)
+- 📅 Date, time, jokes, and weather stubs
+- 📤 Email support (SMTP)
+- 📂 Open/close apps (Notepad, Calculator, Chrome)
 
-  ```
+---
+
+## 📦 Requirements
+
+- Python 3.10+
+- Install dependencies:
+  ```bash
   pip install -r requirements.txt
-  ```
-* [Ollama](https://ollama.com) installed and running:
+````
+
+* Install and run [Ollama](https://ollama.com):
 
   ```bash
   ollama run phi3:mini
-  ollama run mervinpraison/llama3.2-tamil:latest
   ollama run llava:13b
   ```
 
 ---
 
-## 💡 How to Use
+## 🎮 GUI Shortcuts
 
-1. **Run the script**:
-
-   ```bash
-   python jarvis_phi3_template.py
-   ```
-
-2. **Speak your commands**. Examples:
-
-   * `"What is the time?"`
-   * `"Open Notepad"`
-   * `"Play music"`
-   * `"Switch to Tamil"`
-   * `"Describe this image"` (use GUI)
-   * `"Send Email"`
-   * `"Exit"` – quits the app
-
-3. Use **GUI buttons** to control JARVIS manually.
+| Button          | Description                        |
+| --------------- | ---------------------------------- |
+| Time / Date     | Speaks current time or date        |
+| Joke            | Light humor from built-in list     |
+| Music           | Plays relaxing music from YouTube  |
+| Weather         | Placeholder, customizable API call |
+| Export Logs     | Saves all logs to a text file      |
+| Send Email      | Sends basic email (SMTP login)     |
+| Open Notepad    | Launches Windows Notepad           |
+| Open Calculator | Launches Calculator                |
+| Open Chrome     | Launches Google Chrome             |
+| Close Notepad   | Force closes Notepad               |
+| Close Chrome    | Force closes Chrome                |
+| Stop Speaking   | Immediately stops TTS output       |
 
 ---
 
-## 🎛 GUI Command List
+## 🖼️ Image Interaction (via LLaVA)
 
-| Button            | Action                              |
-| ----------------- | ----------------------------------- |
-| Time / Date       | Speak current time/date             |
-| Joke              | Tells a light joke                  |
-| Music             | Play music via YouTube              |
-| Weather           | Stub for weather (customize)        |
-| Describe Image    | Image analysis via LLaVA            |
-| Switch to Tamil   | Use Tamil LLM + Tamil voice         |
-| Switch to English | Use English LLM and voice           |
-| Stop Speaking     | Interrupt voice output              |
-| Export Logs       | Save log to `jarvis_export_log.txt` |
-| Email             | Sends email (edit credentials)      |
-| Open/Close Apps   | Notepad, Calculator, Chrome         |
+Click `"Describe Image"` in GUI (if added) to upload an image and get a caption.
+
+Run LLaVA:
+
+```bash
+ollama run llava:13b
+```
 
 ---
 
-## 📂 Logs
+## ✉️ Email Setup
 
-All conversations are saved in `jarvis_logs.db`.
-
-Use the **Export Logs** button to export as text to `jarvis_export_log.txt`.
-
----
-
-## 🧠 Model Switching
-
-* **Default**: English via `phi3:mini`
-* Use `"Switch to Tamil"` button to:
-
-  * Change model to `llama3.2-tamil`
-  * Change voice to Tamil (if available)
-* Revert with `"Switch to English"`
-
----
-
-## 📧 Email Setup
-
-Edit your credentials in the `send_email()` function:
+Edit credentials in the `send_email()` function:
 
 ```python
 server.login("your_email@gmail.com", "your_password")
-server.sendmail("your_email@gmail.com", "recipient@example.com", "Message body")
+server.sendmail("your_email@gmail.com", "to_email@example.com", "Test email from JARVIS.")
 ```
 
-Enable **Less secure apps** or use **App Passwords** if using Gmail.
+For Gmail, use an **App Password** instead of the actual password.
 
 ---
 
-## 🛠️ Coming Soon / TODO Ideas
+## 💾 Log Export
 
-* 🔌 Home automation via MQTT or local API
-* 📅 Calendar (Google Calendar or Outlook API)
-* 🧠 Memory or file-based context
-* 🌍 Web search integration
-* 🎙 Wake word ("Hey Jarvis")
+All interactions are stored in `jarvis_logs.db`.
+Use the GUI to export to `jarvis_export_log.txt`.
 
 ---
 
-## 👨‍💻 Contributing
+## 🔚 Exit Voice Command
 
-Pull requests welcome! Make sure your features align with voice interaction and local-first approach. Open an issue for discussion first.
+Say:
+
+```
+exit
+```
+
+or
+
+```
+quit
+```
+
+To shut down the assistant and close the GUI.
 
 ---
 
-## ⚠️ Disclaimer
+## 📸 Screenshot (Optional)
 
-This project is experimental and runs local LLMs. Always test responsibly. Ensure secure handling of email credentials.
-
----
-
-## 📸 Screenshot
-
-> *(Add a screenshot of the GUI running)*
+*(Insert a screenshot here of the GUI if you want)*
 
 ---
 
-## 📄 License
+## 📃 License
 
 MIT License
 
 ---
 
-Let me know if you want a PDF/markdown copy or if you'd like it tailored for deployment (e.g., `.exe` with PyInstaller, etc.).
+## 📌 To Do / Ideas
+
+* 🌐 Integrate weather/news APIs
+* 🗓️ Add calendar/task management
+* 🔌 Home automation (MQTT/HTTP)
+* 🎤 Add wake-word trigger
+* 🎙️ Streaming ASR for real-time feedback
+
+---
+
+```
+
+Let me know if you'd like this `README.md` converted to a downloadable file or auto-generated in your code directory.
+```
