@@ -1,13 +1,4 @@
-Here’s the updated `README.md` file tailored to your **JARVIS Assistant** project with:
-
-* ✅ English-only interaction
-* ✅ Integrated GUI with command buttons
-* ✅ App control and email
-* ✅ Image analysis via LLaVA
-* ❌ No Tamil speech
-
 ---
-
 ````markdown
 # 🧠 JARVIS Desktop AI Assistant (English Only)
 
