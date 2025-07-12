@@ -40,7 +40,6 @@ Here's a detailed `README.md` for your GitHub repository based on the provided c
 
   ```bash
   ollama run phi3:mini
-  ollama run mervinpraison/llama3.2-tamil:latest
   ollama run llava:13b
   ```
 
