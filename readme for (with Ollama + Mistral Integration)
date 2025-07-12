@@ -1,0 +1,149 @@
+Great! Here's an updated version of the `README.md` with a section for a **logo** and an optional **demo GIF**. You just need to place your image or video in the repo and name it as specified (or update the paths accordingly).
+
+---
+
+# 🤖 JARVIS AI Assistant (with Ollama + Mistral Integration)
+
+![JARVIS Logo](assets/jarvis_logo.png) <sub><sup>*Smart Voice AI Assistant powered by Ollama and OpenAI*</sup></sub>
+
+---
+
+## 🎬 Demo
+
+![JARVIS Demo](assets/jarvis_demo.gif) <sub><sup>*JARVIS GUI, voice, and image interaction in action*</sup></sub>
+
+---
+
+## 🧠 Features
+
+* 🎙️ Voice-controlled assistant using `speech_recognition`
+* 🗣️ Natural speech replies with `pyttsx3`
+* 🖼️ Image analysis via `llava:13b` (multimodal LLM)
+* 🔁 Switch models: `mistral`, `llama3`, `llava`
+* 🌐 GPT-4 (via OpenAI) fallback chat
+* 🧾 Notes, reminders, search, calculator, and more
+* 🧠 Memory saving to JSON
+* 💻 GUI powered by `tkinter`
+* 🔊 Thread-safe, interruptible TTS
+* 🎤 Voice & text input both supported
+
+---
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+
+* Python 3.9+
+* [Ollama](https://ollama.com/) installed
+* Models: `mistral`, `llava`, `llama3:8b`
+* OpenAI API Key (for GPT-4 fallback)
+
+### 📦 Install Dependencies
+
+```bash
+pip install pyttsx3 SpeechRecognition requests openai pillow
+```
+
+> 🛠 For Windows:
+>
+> ```bash
+> pip install pipwin
+> pipwin install pyaudio
+> ```
+
+---
+
+## ⚙️ Configuration
+
+### 🔑 OpenAI Key
+
+Edit in the `.py` file:
+
+```python
+openai.api_key = "your-openai-key"
+```
+
+### 🧠 Ollama Model Setup
+
+Run the models you want:
+
+```bash
+ollama run mistral
+ollama run llava
+ollama run llama3:8b
+```
+
+---
+
+## 🖥️ Run It
+
+```bash
+python jarvis_running_on_ollama_misteral_model.py
+```
+
+---
+
+## 🗣️ Voice Commands
+
+Examples:
+
+* “What’s the time?”
+* “Open calculator”
+* “Switch model to llava”
+* “Take a note”
+* “Start AI conversation”
+* “Describe image”
+* “Ask online AI”
+* “Exit JARVIS”
+
+---
+
+## 📷 Image Support
+
+* Select `.jpg`, `.jpeg`, `.png`
+* Ask questions about the image
+* Uses `llava` for vision + language
+
+---
+
+## 📂 Structure
+
+```
+📁 assets/
+  └─ jarvis_logo.png
+  └─ jarvis_demo.gif
+📝 jarvis_running_on_ollama_misteral_model.py
+🧠 conversation_memory.json
+📓 notes.txt
+```
+
+---
+
+## 📌 Known Issues
+
+* Ollama server must be running
+* Online features need internet
+* No multilingual support (yet)
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 🙌 Credits
+
+Built by **\[Your Name]**
+Powered by **Python**, **Ollama**, **OpenAI**, **Tkinter**
+
+---
+
+🖼️ **To add your own logo or GIF**:
+
+* Create a folder named `assets`
+* Add `jarvis_logo.png` and `jarvis_demo.gif`
+* Or replace the filenames in the markdown
+
+Would you like me to generate a logo and demo GIF preview for you now?
