@@ -28,6 +28,12 @@ Here's a detailed `README.md` for your GitHub repository based on the provided c
 
 ---
 
+
+▶️ [Watch AI ASSISTANT Demo](https://drive.google.com/file/d/1Er_OXwOzOeQbYfHOUT67tSANDw3JTdrw/view?usp=drive_link)
+
+
+---
+
 ## 🛠 Requirements
 
 * Python 3.10+
@@ -130,12 +136,6 @@ Pull requests welcome! Make sure your features align with voice interaction and 
 ## ⚠️ Disclaimer
 
 This project is experimental and runs local LLMs. Always test responsibly. Ensure secure handling of email credentials.
-
----
-
-## 📸 Screenshot
-
-> *(Add a screenshot of the GUI running)*
 
 ---
 
