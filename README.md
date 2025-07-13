@@ -155,13 +155,13 @@ Let me know if you want a PDF/markdown copy or if you'd like it tailored for dep
 
 # 🤖 JARVIS AI Assistant (with Ollama + Mistral Integration)
 
-![JARVIS Logo](assets/jarvis_logo.png) <sub><sup>*Smart Voice AI Assistant powered by Ollama and OpenAI*</sup></sub>
+![JARVIS Logo](jarvis_logo.png) <sub><sup>*Smart Voice AI Assistant powered by Ollama and OpenAI*</sup></sub>
 
 ---
 
 ## 🎬 Demo
 
-![JARVIS Demo](assets/jarvis_demo.gif) <sub><sup>*JARVIS GUI, voice, and image interaction in action*</sup></sub>
+![JARVIS Demo](jarvis_demo.gif) <sub><sup>*JARVIS GUI, voice, and image interaction in action*</sup></sub>
 
 ---
 
