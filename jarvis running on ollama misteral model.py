@@ -13,6 +13,11 @@ import openai
 import base64
 import json
 from tkinter import ttk, scrolledtext
+import sqlite3
+import random
+import webbrowser
+from datetime import timedelta
+from tkinter.font import Font
 
 # === Initialization ===
 engine = pyttsx3.init()
@@ -45,7 +50,10 @@ def speak(text, gui_callback=None):
     threading.Thread(target=tts_job, daemon=True).start()
 
 # === Set your OpenAI API Key ===
-openai.api_key = "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"
+openai.api_key = "type your api key"
+
+OPENWEATHER_API_KEY = "af447c4cc560efe8876a3498a8e1ef6f"
+NEWSAPI_KEY = "pub_45f1a8d540bb4ebd936de5020e5014f0"
 
 # === Listen Function ===
 def listen(timeout=8, phrase_time_limit=10):
@@ -56,6 +64,106 @@ def listen(timeout=8, phrase_time_limit=10):
             return recognizer.recognize_google(audio)
         except (sr.UnknownValueError, sr.WaitTimeoutError, sr.RequestError):
             return ""
+
+# --- DB Setup ---
+conn = sqlite3.connect("jarvis_logs.db", check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS conversations (
+    timestamp TEXT,
+    role TEXT,
+    message TEXT
+)''')
+conn.commit()
+
+def db_log(role, msg):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cursor.execute("INSERT INTO conversations VALUES (?, ?, ?)", (timestamp, role, msg))
+    conn.commit()
+
+def export_logs():
+    with open("jarvis_export_log.txt", "w", encoding="utf-8") as f:
+        for row in cursor.execute("SELECT * FROM conversations"):
+            f.write(f"{row[0]} - {row[1]}: {row[2]}\n")
+
+def get_weather(city="karur"):
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric"
+        response = requests.get(url).json()
+        if response.get("cod") != 200:
+            return f"Sorry, I couldn't find weather info for {city}."
+        desc = response['weather'][0]['description']
+        temp = response['main']['temp']
+        humidity = response['main']['humidity']
+        weather_report = f"The weather in {city} is {desc} with temperature {temp} degree Celsius and humidity {humidity} percent."
+        return weather_report
+    except Exception as e:
+        return f"Failed to get weather: {e}"
+
+def get_news():
+    try:
+        url = f"https://newsapi.org/v2/top-headlines?country=in&apiKey={NEWSAPI_KEY}"
+        response = requests.get(url).json()
+        if response.get("status") != "ok":
+            return "Sorry, I can't get the news right now."
+        articles = response.get("articles", [])[:3]
+        news_report = "Here are the top news headlines: "
+        for i, article in enumerate(articles, 1):
+            news_report += f"{i}. {article['title']}. "
+        return news_report
+    except Exception as e:
+        return f"Failed to get news: {e}"
+
+def open_app(name):
+    apps = {
+        "spotify": r"C:\Users\LOQ\AppData\Roaming\Spotify\Spotify.exe",
+        "word": r"C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE",
+        "excel": r"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE",
+        "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        "games folder": r"D:\games",
+        "gta5": r"D:\games\Grand Theft Auto V",
+        "notepad": "notepad.exe",
+        "calculator": "calc.exe",
+    }
+    path = apps.get(name)
+    if path:
+        subprocess.Popen(path)
+        speak(f"Opening {name}")
+    else:
+        speak(f"Sorry, I don't know how to open {name}.")
+
+def close_app(name):
+    processes = {
+        "spotify": "Spotify.exe",
+        "word": "WINWORD.EXE",
+        "excel": "EXCEL.EXE",
+        "chrome": "chrome.exe",
+        "notepad": "notepad.exe",
+        "calculator": "Calculator.exe",
+    }
+    proc = processes.get(name)
+    if proc:
+        os.system(f"taskkill /f /im {proc}")
+        speak(f"Closed {name}")
+    else:
+        speak(f"Sorry, I don't know how to close {name}.")
+
+def describe_image(file_path, gui_callback):
+    try:
+        with open(file_path, 'rb') as f:
+            img_bytes = base64.b64encode(f.read()).decode("utf-8")
+        url = "http://localhost:11434/api/generate"
+        response = requests.post(url, json={
+            "model": "llava:13b",
+            "prompt": "Describe this image.",
+            "images": [img_bytes]
+        })
+        if response.status_code == 200:
+            result = response.json().get("response", "")
+            speak(result, gui_callback=gui_callback)
+        else:
+            speak("Failed to process image.", gui_callback=gui_callback)
+    except Exception:
+        speak("Failed to process image.", gui_callback=gui_callback)
 
 # === Ollama Integration ===
 class OllamaManager:
@@ -145,11 +253,124 @@ def ask_openai(prompt, history=None):
     except Exception as e:
         return f"OpenAI error: {e}"
 
+# === System Information Functions ===
+def get_battery_status():
+    try:
+        # For Windows
+        output = subprocess.check_output("wmic path win32_battery get estimatedchargeremaining", shell=True)
+        charge = int(output.decode().strip().split("\n")[-1])
+        return f"Battery charge is at {charge}%."
+    except:
+        return "Battery status not available."
+
+def get_system_specs():
+    try:
+        # Using WMIC to get system specifications
+        specs = subprocess.check_output("wmic cpu get caption, deviceid, name, numberofcores, maxclockspeed", shell=True)
+        return "System Specs: " + specs.decode()
+    except:
+        return "Failed to get system specs."
+
+def get_temperatures():
+    try:
+        # Using wmi module to get temperature (works on Windows)
+        import wmi
+        w = wmi.WMI(namespace="root\wmi")
+        temperature_info = w.MSAcpi_ThermalZone()
+        temperatures = [temp.CurrentTemperature for temp in temperature_info]
+        # Convert from tenths of Kelvin to Celsius
+        temperatures_celsius = [round((temp / 10) - 273.15, 2) for temp in temperatures]
+        return "Temperatures: " + ", ".join([f"{temp}°C" for temp in temperatures_celsius])
+    except:
+        return "Failed to get temperatures."
+
+def get_ram_usage():
+    try:
+        # Using psutil to get RAM usage
+        import psutil
+        ram = psutil.virtual_memory()
+        return f"RAM Usage: {ram.percent}%"
+    except:
+        return "Failed to get RAM usage."
+
+def get_disk_usage():
+    try:
+        # Using psutil to get Disk usage
+        import psutil
+        disk = psutil.disk_usage('/')
+        return f"Disk Usage: {disk.percent}%"
+    except:
+        return "Failed to get Disk usage."
+
+def get_uptime():
+    try:
+        # Using uptime command
+        output = subprocess.check_output("uptime -p", shell=True)
+        return "Uptime: " + output.decode().strip()
+    except:
+        return "Failed to get uptime."
+
+def get_ip_address():
+    try:
+        # Using requests to get public IP
+        response = requests.get("https://api.ipify.org")
+        return "Public IP Address: " + response.text
+    except:
+        return "Failed to get IP address."
+
+def check_internet():
+    try:
+        # Using requests to check internet connectivity
+        requests.get("https://www.google.com", timeout=5)
+        return "Internet is connected."
+    except:
+        return "No internet connection."
+
+# --- Note and To-Do Functions ---
+def save_note(note):
+    try:
+        with open("notes.txt", "a") as f:
+            f.write(note + "\n")
+    except Exception as e:
+        return f"Error saving note: {e}"
+
+def get_notes():
+    try:
+        with open("notes.txt", "r") as f:
+            notes = f.readlines()
+        return "Notes: " + "".join(notes)
+    except Exception as e:
+        return f"Error retrieving notes: {e}"
+
+def add_todo(task):
+    try:
+        with open("todo.txt", "a") as f:
+            f.write(task + "\n")
+    except Exception as e:
+        return f"Error adding task: {e}"
+
+def get_todo():
+    try:
+        with open("todo.txt", "r") as f:
+            tasks = f.readlines()
+        return "To-Do List: " + "".join(tasks)
+    except Exception as e:
+        return f"Error retrieving tasks: {e}"
+
+def set_reminder(task, minutes):
+    try:
+        time.sleep(minutes * 60)
+        speak(f"Reminder: {task}")
+        return f"Reminder set for {task} in {minutes} minutes."
+    except Exception as e:
+        return f"Error setting reminder: {e}"
+
 # === Handle Voice Commands ===
 def handle_command(command, gui_print):
     global conversation_mode
     stop_speaking()  # Interrupt speech on any new command
     command = command.lower()
+    db_log("User", command)
 
     if command.startswith("switch model to"):
         found = False
@@ -162,74 +383,124 @@ def handle_command(command, gui_print):
         if not found:
             speak("Sorry, I couldn't find that model.", gui_callback=gui_print)
         return
-
+    elif "battery" in command:
+        speak(get_battery_status(), gui_print)
+    elif "specs" in command:
+        speak(get_system_specs(), gui_print)
+    elif "temperature" in command:
+        speak(get_temperatures(), gui_print)
+    elif "ram" in command:
+        speak(get_ram_usage(), gui_print)
+    elif "disk" in command:
+        speak(get_disk_usage(), gui_print)
+    elif "uptime" in command:
+        speak(get_uptime(), gui_print)
+    elif "ip" in command:
+        speak(get_ip_address(), gui_print)
+    elif "internet" in command:
+        speak(check_internet(), gui_print)
+    elif "note" in command:
+        note = command.replace("take a note", "").strip()
+        save_note(note)
+        speak("Note saved", gui_print)
+    elif "show notes" in command:
+        speak(get_notes(), gui_print)
+    elif "to-do" in command:
+        task = command.replace("add", "").replace("to-do list", "").strip()
+        add_todo(task)
+        speak("Task added", gui_print)
+    elif "show tasks" in command:
+        speak(get_todo(), gui_print)
+    elif "remind me" in command:
+        parts = command.split(" in ")
+        task = parts[0].replace("remind me to", "").strip()
+        minutes = int(parts[1].replace("minutes", "").strip())
+        speak(set_reminder(task, minutes), gui_print)
+    elif "open" in command:
+        speak(open_site(command), gui_print)
+    elif "search" in command:
+        query = command.replace("search", "").strip()
+        speak(search_web(query), gui_print)
+    elif "download" in command:
+        url = command.replace("download file from", "").strip()
+        speak(download_file(url), gui_print)
+    elif "play music" in command:
+        speak(play_music(), gui_print)
+    elif "joke" in command:
+        speak(tell_joke(), gui_print)
+    elif "quote" in command:
+        speak(get_quote(), gui_print)
+    elif "time" in command:
+        speak(datetime.datetime.now().strftime("%I:%M %p"), gui_print)
+    elif "date" in command:
+        speak(datetime.datetime.now().strftime("%A, %d %B %Y"), gui_print)
+    elif "exit" in command:
+        speak("Shutting down.", gui_print)
+        os._exit(0)
     elif "time" in command:
         speak("The current time is " + datetime.datetime.now().strftime("%I:%M %p"), gui_callback=gui_print)
+        return
 
     elif "date" in command:
         speak("Today's date is " + datetime.datetime.now().strftime("%d %B %Y"), gui_callback=gui_print)
+        return
 
     elif "day" in command:
         speak("Today is " + datetime.datetime.now().strftime("%A"), gui_callback=gui_print)
+        return
 
-    elif "open calculator" in command:
-        subprocess.Popen('calc.exe')
-        speak("Opening calculator", gui_callback=gui_print)
+    elif "weather" in command:
+        city = "karur"
+        if "in" in command:
+            city = command.split("in")[-1].strip()
+        weather_report = get_weather(city)
+        speak(weather_report, gui_callback=gui_print)
+        return
 
-    elif "open notepad" in command:
-        subprocess.Popen(['notepad.exe'])
-        speak("Opening Notepad", gui_callback=gui_print)
+    elif "news" in command:
+        news = get_news()
+        speak(news, gui_callback=gui_print)
+        return
 
-    elif "note" in command:
-        speak("What would you like me to note?", gui_callback=gui_print)
-        note = listen()
-        if note:
-            with open("notes.txt", "a") as f:
-                f.write(note + "\n")
-            speak("Noted.", gui_callback=gui_print)
+    elif "open" in command:
+        for app in ["spotify", "word", "excel", "chrome", "notepad", "calculator","games folder", "gta5"]:
+            if app in command:
+                open_app(app)
+                break
         else:
-            speak("I didn't catch that.", gui_callback=gui_print)
+            speak("Please specify a known app to open.", gui_callback=gui_print)
+        return
 
-    elif "open google" in command:
-        speak("Opening Google", gui_callback=gui_print)
-        os.system("start https://www.google.com")
+    elif "close" in command:
+        for app in ["spotify", "word", "excel", "chrome", "notepad", "calculator","games folder", "gta5"]:
+            if app in command:
+                close_app(app)
+                break
+        else:
+            speak("Please specify a known app to close.", gui_callback=gui_print)
+        return
 
-    elif "start ai conversation" in command:
-        conversation_mode["enabled"] = True
-        conversation_mode["memory"] = []
-        speak("AI conversation mode started.", gui_callback=gui_print)
+    elif "export logs" in command:
+        export_logs()
+        speak("Logs have been exported to jarvis_export_log.txt", gui_callback=gui_print)
+        return
 
-    elif "end conversation" in command:
-        conversation_mode["enabled"] = False
-        save_memory(conversation_mode["memory"])
-        conversation_mode["memory"] = []
-        speak("AI conversation ended.", gui_callback=gui_print)
+    elif "joke" in command:
+        joke = random.choice([
+            "Why did the computer go to therapy? Because it had too many bytes!",
+            "I'm not lazy, I'm on energy-saving mode."
+        ])
+        speak(joke, gui_callback=gui_print)
+        return
 
-    elif "ask online ai" in command:
-        speak("What would you like to ask?", gui_callback=gui_print)
-        question = listen()
-        if question:
-            response = ask_openai(question)
-            speak(response, gui_callback=gui_print)
-
-    elif "ask ai" in command:
-        speak("What should I ask the AI?", gui_callback=gui_print)
-        question = listen()
-        if question:
-            speak("Thinking...", gui_callback=gui_print)
-            answer = ollama.run_query(question)
-            speak(answer, gui_callback=gui_print)
-
-    elif "analyze image" in command or "describe image" in command:
+    elif "describe image" in command or "analyze image" in command:
         speak("Please select an image file.", gui_callback=gui_print)
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png")])
         if file_path:
-            speak("What should I ask about the image?", gui_callback=gui_print)
-            question = listen()
-            if question:
-                speak("Analyzing image...", gui_callback=gui_print)
-                response = ollama.run_image_query(question, file_path)
-                speak(response, gui_callback=gui_print)
+            describe_image(file_path, gui_callback)
+        else:
+            speak("No image selected.", gui_callback=gui_print)
+        return
 
     elif conversation_mode["enabled"]:
         conversation_mode["memory"].append({"role": "user", "content": command})
@@ -237,14 +508,21 @@ def handle_command(command, gui_print):
         response = ollama.run_query(prompt)
         conversation_mode["memory"].append({"role": "assistant", "content": response})
         speak(response, gui_callback=gui_print)
+        return
 
     elif "exit" in command or "stop" in command:
         speak("Shutting down. Goodbye!", gui_callback=gui_print)
         save_memory(conversation_mode["memory"])
         os._exit(0)
+        return
 
+    # --- NEW: Send unknown commands to AI model ---
     else:
-        speak("Sorry, I didn't understand that.", gui_callback=gui_print)
+        # Use Ollama by default, fallback to OpenAI if needed
+        response = ollama.run_query(command)
+        if not response or "Failed" in response or "Error" in response:
+            response = ask_openai(command)
+        speak(response, gui_callback=gui_print)
 
 def command_worker(gui_print):
     while True:
@@ -295,7 +573,7 @@ def start_gui():
     user_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
 
     def on_send():
-        user_text = user_entry.get().strip()
+        user_text = user_entry.get().strip()  # <-- add indentation here
         if user_text:
             stop_speaking()  # Interrupt JARVIS if speaking
             gui_print("You: " + user_text)
@@ -315,7 +593,7 @@ def start_gui():
     def on_voice():
         stop_speaking()  # Interrupt JARVIS if speaking
         gui_print("Listening...")
-        cmd = listen()
+        cmd = listen()  # <-- add indentation here
         if cmd:
             gui_print("You: " + cmd)
             command_queue.put(cmd)
