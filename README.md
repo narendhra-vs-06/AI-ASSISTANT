@@ -94,10 +94,6 @@ Use the **Export Logs** button to export as text to `jarvis_export_log.txt`.
 ## 🧠 Model Switching
 
 * **Default**: English via `phi3:mini`
-* Use `"Switch to Tamil"` button to:
-
-  * Change model to `llama3.2-tamil`
-  * Change voice to Tamil (if available)
 * Revert with `"Switch to English"`
 
 ---
@@ -289,4 +285,4 @@ MIT License
 ## 🙌 Credits
 
 Built by **NARENDHRA PRASHATH VS**
-Powered by **Python**, **Ollama**, **OpenAI**, **Tkinter*
+Powered by **Python**, **Ollama**, **OpenAI**, **Tkinter**
