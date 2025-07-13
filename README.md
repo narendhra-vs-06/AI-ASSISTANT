@@ -144,11 +144,8 @@ This project is experimental and runs local LLMs. Always test responsibly. Ensur
 MIT License
 
 ---
-
-Let me know if you want a PDF/markdown copy or if you'd like it tailored for deployment (e.g., `.exe` with PyInstaller, etc.).
-
 ---
-
+ANOTHER MODEL README
 # 🤖 JARVIS AI Assistant (with Ollama + Mistral Integration)
 
 ![JARVIS Logo](JARVIS_LOGO.PNG) 
