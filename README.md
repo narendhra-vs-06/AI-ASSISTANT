@@ -286,15 +286,5 @@ MIT License
 
 ## 🙌 Credits
 
-Built by **\[Your Name]**
-Powered by **Python**, **Ollama**, **OpenAI**, **Tkinter**
-
----
-
-🖼️ **To add your own logo or GIF**:
-
-* Create a folder named `assets`
-* Add `jarvis_logo.png` and `jarvis_demo.gif`
-* Or replace the filenames in the markdown
-
-Would you like me to generate a logo and demo GIF preview for you now?
+Built by **NARENDHRA PRASHATH VS**
+Powered by **Python**, **Ollama**, **OpenAI**, **Tkinter*
